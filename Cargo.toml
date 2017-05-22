@@ -1,0 +1,11 @@
+[package]
+name = "lief-sys"
+version = "0.1.0"
+authors = ["tathanhdinh <tathanhdinh@gmail.com>"]
+
+[dependencies]
+libc = "*"
+
+# [[bin]]
+# name = "lief_test"
+# path = "src/main.rs"
