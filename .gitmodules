@@ -1,0 +1,3 @@
+[submodule "lief-c"]
+	path = lief-c
+	url = https://github.com/lief-project/LIEF.git

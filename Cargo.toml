@@ -2,10 +2,11 @@
 name = "lief-sys"
 version = "0.1.0"
 authors = ["tathanhdinh <tathanhdinh@gmail.com>"]
+edition = "2018"
+build = "build.rs"
 
 [dependencies]
-libc = "*"
 
-# [[bin]]
-# name = "lief_test"
-# path = "src/main.rs"
+[build-dependencies]
+bindgen = { git = "https://github.com/rust-lang-nursery/rust-bindgen.git" }
+cmake = "0.1.34"

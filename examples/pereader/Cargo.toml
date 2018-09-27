@@ -1,0 +1,11 @@
+[package]
+name = "pereader"
+version = "0.1.0"
+authors = ["TA Thanh Dinh <tathanhdinh@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+lief-sys = { path = "../../" }
+structopt = "0.2.10"
+tabwriter = "1.1.0"
+chrono = "0.4.6"
