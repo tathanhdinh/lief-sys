@@ -1,56 +1,11 @@
 use bindgen;
-// use cmake;
 use std::{env, path};
 
-const LIEF_C_DIR: &'static str = "lief-sdk";
+const LIEF_SDK_DIR: &'static str = "lief-sdk";
 const LIEF_C_LIB: &'static str = "LIEF";
 
-#[allow(dead_code)]
-fn build_static_library(lief_c_path: &path::Path) {
-    // println!("cargo:rerun-if-changed={}", LIEF_C_DIR);
-
-    // let mut lief_builder = cmake::Config::new(LIEF_C_DIR);
-
-    // lief_builder
-    //     .define("LIEF_PYTHON_API", "OFF")
-    //     .define("CMAKE_BUILD_TYPE", "Release");
-
-    // #[cfg(target_family = "windows")]
-    // lief_builder.generator("NMake Makefiles");
-
-    // #[cfg(target_family = "unix")]
-    // lief_builder.generator("Unix Makefiles");
-
-    // let lief_builder = lief_builder.build();
-
-    let lief_lib_path = {
-        let path = lief_c_path.join("lib");
-        if !path.exists() {
-            panic!("LIEF lib path not found")
-        }
-        path
-    };
-
-    println!("cargo:rustc-link-lib={}={}", "static", LIEF_C_LIB);
-    println!(
-        "cargo:rustc-link-search={}={}",
-        "native",
-        // lief_builder.display()
-        lief_lib_path.to_string_lossy()
-    );
-}
-
 fn generate_binding(out_dir_path: &path::Path, lief_c_path: &path::Path) {
-    // let lief_common_include_path = {
-    //     let path = lief_c_path.join("include");
-    //     if !path.exists() {
-    //         panic!("LIEF common include path not found")
-    //     }
-    //     path
-    // };
-
     let lief_c_include_path = {
-        // let path = lief_c_path.join("api").join("c").join("include");
         let path = lief_c_path.join("include");
         if !path.exists() {
             panic!("LIEF C include path not found")
@@ -68,7 +23,6 @@ fn generate_binding(out_dir_path: &path::Path, lief_c_path: &path::Path) {
 
     let lief_binder = bindgen::Builder::default()
         .header(lief_c_header.to_string_lossy())
-        // .clang_arg(format!("-I{}", lief_common_include_path.to_string_lossy()))
         .clang_arg(format!("-I{}", lief_c_include_path.to_string_lossy()))
         .prepend_enum_name(false)
         .rustified_enum("*")
@@ -97,21 +51,35 @@ fn main() {
         path::PathBuf::from(out_dir)
     };
 
-    let lief_c_path = {
-        let path = path::PathBuf::from(LIEF_C_DIR);
+    let lief_sdk_path = {
+        let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
+        let path = path::PathBuf::from(&crate_dir).join(LIEF_SDK_DIR);
         if !path.exists() {
-            panic!("LIEF source directory not found");
+            panic!("LIEF sdk directory not found");
         }
         path
     };
 
-    println!("cargo:rerun-if-changed={}", LIEF_C_DIR);
+    println!("cargo:rerun-if-changed={}", LIEF_SDK_DIR);
 
-    generate_binding(&out_dir_path, &lief_c_path);
-    // TODO: LIEF seems prefer static (and removed shared) library building
-    // but I cannot do static link (on Linux), still do not understand why :(
-    build_static_library(&lief_c_path);
+    generate_binding(&out_dir_path, &lief_sdk_path);
 
-    // println!("cargo:rustc-link-lib={}={}", "dylib", LIEF_C_LIB);
-    // println!("cargo:rustc-link-search={}={}", "native", "/usr/lib");
+    let lief_lib_path = {
+        let path = lief_sdk_path.join("lib");
+        if !path.exists() {
+            panic!("LIEF lib path not found")
+        }
+        path
+    };
+
+    println!(
+        "cargo:rustc-link-search={}={}",
+        "native",
+        lief_lib_path.to_string_lossy()
+    );
+
+    println!("cargo:rustc-link-lib={}={}", "static", LIEF_C_LIB);
+
+    #[cfg(target_family = "unix")]
+    println!("cargo:rustc-link-lib=dylib=stdc++");
 }

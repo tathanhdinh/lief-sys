@@ -34,7 +34,7 @@ fn main() {
 
         raw_pe = unsafe { lief_sys::pe_parse(input.as_ptr()) };
         if raw_pe.is_null() {
-            panic!("cannot parse PE file");
+            panic!("unable to parse PE file");
         }
         unsafe { *raw_pe }
     };
