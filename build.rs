@@ -77,11 +77,8 @@ fn main() {
         lief_lib_path.to_string_lossy()
     );
 
-    // TODO: LIEF seems prefer static (and removed shared) library building
-    // but I cannot do static link (on Linux), still do not understand why :(
-    #[cfg(target_family = "windows")]
     println!("cargo:rustc-link-lib={}={}", "static", LIEF_C_LIB);
 
     #[cfg(target_family = "unix")]
-    println!("cargo:rustc-link-lib={}={}", "dylib", LIEF_C_LIB);
+    println!("cargo:rustc-link-lib=dylib=stdc++");
 }
